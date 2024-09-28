@@ -7,6 +7,7 @@ const coursesapp = require('./utils/courses_api');
 const Slider = require('./utils/slider_api')
 const StudentRegister = require('./utils/student_register_api')
 const Event = require('./utils/event_api')
+const Certificate = require('./utils/certificate_api')
 
 const cors = require('cors');
 app.use(cors())
@@ -20,6 +21,7 @@ app.use('/api',coursesapp)
 app.use('/api',Slider)
 app.use('/api',StudentRegister)
 app.use('/api',Event)
+app.use('/api' , Certificate)
 
 
 app.listen(port, (err) => {

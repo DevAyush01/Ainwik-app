@@ -39,3 +39,29 @@ app.post('/add_certificate', async (req,res)=>{
 
 })
 
+
+app.delete('/delete_certificate/:id', async (req, res) => {
+    try {
+        const deletedCertificate = await Certificate.findByIdAndDelete(req.params.id);
+        
+        if (!deletedCertificate) {
+            return res.status(404).send('Certificate not found');
+        }
+
+        res.json({
+            message: 'Certificate deleted successfully',
+            certificate: {
+                name : deletedCertificate.name,
+                course : deletedCertificate.course
+            }
+
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error deleting certificate');
+    }
+});
+
+
+module.exports = app
+

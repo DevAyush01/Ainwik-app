@@ -84,12 +84,7 @@ function Navbar() {
 
           </ul>
 
-          <Link to="/Ainwik">
-          <li className="p-3 hover:bg-sky-400 hover:text-white rounded-md transtion-all cursor-pointer">
-            Ainwik-infotech
-          </li>
-
-          </Link>
+        
           <div className="relative peer">
           <li className="relative peer p-3 hover:bg-sky-400 hover:text-white rounded-md transtion-all cursor-pointer flex">
             Course<RiArrowDropDownLine className="mt-1" />
