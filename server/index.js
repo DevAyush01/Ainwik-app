@@ -1,33 +1,39 @@
-const express = require("express");
-const app = express()
-const port = 2245;
-require('./config/dbConn')
+const port = process.env.PORT || 4455;
+const express = require('express');
+const app = express();
 const parser = require('body-parser');
-const Student = require("./config/user");
+const path = require('path');
+const coursesapp = require('./utils/courses_api');
+const Slider = require('./utils/slider_api')
+const StudentRegister = require('./utils/student_register_api')
+const Event = require('./utils/event_api')
 
-app.use(parser.json())
-app.use(express.json())
+const cors = require('cors');
+app.use(cors())
+
+require('./config/dbConn');
+
+app.use(parser.json());
 
 
+app.use('/api',coursesapp)
+app.use('/api',Slider)
+app.use('/api',StudentRegister)
+app.use('/api',Event)
 
 
-app.listen(port,(err)=>{
+app.listen(port, (err) => {
     if (err) {
-     console.log("Something error")
-     
+        console.log("Something went wrong", err);
     } else {
-     console.log(`server is running on ${port}`)
+        console.log(`Server is running on port ${port}`);
     }
- })
+}); 3
 
- app.get('/getData',(req,res)=>{
-      res.send("Hello world");
- })
+app.get('/', (req,res)=>{
+    res.json({message : "Hello"})
+})
 
- app.post('/register',async(req,res)=>{
-        // const { name, email, phone } = req.body;
-        let student = new Student(req.body)
-             let result = await student.save();
-             result = result.toObject();
-             res.send(result)
- })
+
+
+ 

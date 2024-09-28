@@ -1,22 +1,19 @@
-const mongoose = require("mongoose")
+const mongoose = require('mongoose')
 
-const UserSchema = mongoose.Schema({
-    name:{
-        type: String
-    },
-    email:{
-        type: String
-    },
-    phone:{
-        type: Number
-    },
-    instituteid:{
+const ImageGallerySchema = mongoose.Schema({
+     
+    image : {
         type: String,
+        required : true
     },
-    password:{
-        type:String
+    heading : {
+        type : String,
+        required : true
+    },
+    description : {
+        type : String,
+        required : true
     }
 })
 
-
-module.exports = mongoose.model('Students',UserSchema)
+module.exports = mongoose.model('Course', ImageGallerySchema);

@@ -1,0 +1,48 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-family: sans-serif;
+    box-sizing: border-box;
+
+}
+.logo{
+    width: 500px;
+    height: 300px;
+    border: solid black 2px;
+    text-align: center;
+    margin-left: 380px;
+    margin-top: 140px;
+    border-radius: 18px;
+}
+input{
+    width: 200px;
+    display: block;
+    margin-left: 150px;
+    margin-top:50px;
+    border: none;
+    border-bottom: solid black 2px;
+    outline: none;
+}
+.btn1{
+    height:40px;
+    width: 180px;
+    margin-top: 40px;
+    border-radius: 20px;
+    background-color: rgb(91, 91, 246);
+    font-size: 20px;
+    font-weight: 100;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+.sugg{
+    font-weight: normal;
+    font-size: medium;
+    margin-top: 10px;
+    margin-left: 20px;
+
+}
+.text-1{
+   margin-left: 30px;
+}
+
