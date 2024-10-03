@@ -10,7 +10,7 @@ app.post('/add_image',upload.single('image'), async(req,res)=>{
     }
 
     const newSlider = new Slider({
-        images : req.file.path
+        images : req.file.filename
     })
 
     newSlider.save()
@@ -83,5 +83,31 @@ app.delete('/delete_image/:_id', async (req, res) => {
         });
     }
 })
+
+app.get('/get_images', async (req, res) => {
+    try {
+        const sliders = await Slider.find();
+        
+        if (!sliders || sliders.length === 0) {
+            return res.status(404).json({ message: 'No images found' });
+        }
+
+        const images = sliders.map(slider => ({
+            id: slider._id,
+            image: slider.images
+        }));
+
+        res.status(200).json({
+            message: 'Images retrieved successfully',
+            images: images
+        });
+    } catch (error) {
+        console.error('Error retrieving images:', error);
+        res.status(500).json({
+            message: 'Error retrieving images',
+            error: error.message
+        });
+    }
+});
 
 module.exports = app

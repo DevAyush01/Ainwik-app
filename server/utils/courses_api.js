@@ -4,7 +4,7 @@ const app = express();
 const upload = require('../multerConfig')
 
 
-app.post('/add_course', upload.single('Image'), async (req,res)=>{
+app.post('/add_course', upload.single('image'), async (req,res)=>{
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
@@ -55,7 +55,7 @@ app.post('/add_course', upload.single('Image'), async (req,res)=>{
   });
 
 
-  app.put('/update_course/:id', upload.single('Image'), async (req, res) => {
+  app.put('/update_course/:id', upload.single('image'), async (req, res) => {
     try {
         const { courseHeading, courseDescription } = req.body;
         const updateData = {
@@ -104,6 +104,15 @@ app.delete('/delete_course/:id', async (req, res) => {
         res.status(500).send('Error deleting course');
     }
 });
+app.get('/courses', async (req, res) => {
+    try {
+      const courses = await Course.find();
+      res.json(courses);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error retrieving courses');
+    }
+  });
 
 
 
