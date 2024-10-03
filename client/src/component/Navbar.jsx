@@ -28,9 +28,15 @@ import { Link } from "react-router-dom";
 
 import './Navbar.css';
 import Login from "./Login";
+import TextTiming from "./TextTiming";
 
 function Navbar() {
-  
+  const dynamicTexts = [
+    "Web Development",
+    "Mern Full Stack Development",
+    "Data Science",
+    "App Development",
+  ];
     const [isOpen, setIsOpen] = useState(false);
 
     const nav_Toggle = () => {
@@ -241,6 +247,29 @@ function Navbar() {
                 
             )}
       </header>
+       
+       <div className="h-[100vh] flex w-full">
+
+        {/* <div className="w-1/2 flex  items-center justify-center"><h1 className="text-4xl font-bold">UpSkill And Land </h1>
+        <div><TextTiming className="text-5xl" text="Your Dream" speed={100} pauseDuration={1000} /></div>
+        </div> */}
+
+      <div className="flex items-center justify-center w-1/2">
+      {/* <h1 className="text-3xl font-bold mb-4">UpSkill And Land Your</h1>  */}
+      <div className="block">
+      <TextTiming 
+        texts={dynamicTexts} 
+        speed={100} 
+        pauseDuration={1000} 
+      />
+      </div>
+    </div>
+
+
+
+        <div className="w-1/2 items-center flex "><img src={logo} alt="" width={500} /></div>
+       </div>
+
     </div>
   );
 }

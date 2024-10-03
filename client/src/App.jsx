@@ -5,44 +5,44 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from './component/Login';
 import AinwikLogin from './component/AinwikLogin';
 function App() {
-  const [courses , setCourses] = useState([])
+  // const [courses , setCourses] = useState([])
 
 
-    const fetchCourse = async()=>{
-     try {
-      const res = await fetch('http://localhost:4455/api/courses')
+  //   const fetchCourse = async()=>{
+  //    try {
+  //     const res = await fetch('http://localhost:4455/api/courses')
 
-      if (!res.ok) {
-        console.log('Failed to fetch courses')
-      } 
-           const data =await res.json()
-           setCourses(data)
-     }
-      catch (error) {
-      console.log('Error' ,error)
-     }
+  //     if (!res.ok) {
+  //       console.log('Failed to fetch courses')
+  //     } 
+  //          const data =await res.json()
+  //          setCourses(data)
+  //    }
+  //     catch (error) {
+  //     console.log('Error' ,error)
+  //    }
           
-    }
+  //   }
 
-    const deleteCourse = async (id)=>{
-      try {
-        let res = await fetch(`http://localhost:4455/api/delete_course/${id}`,{
-          method : 'DELETE'
-        })
+  //   const deleteCourse = async (id)=>{
+  //     try {
+  //       let res = await fetch(`http://localhost:4455/api/delete_course/${id}`,{
+  //         method : 'DELETE'
+  //       })
 
-        res = await res.json()
-      } catch (error) {
-        console.log('Error deleting course' , error)
-      }
+  //       res = await res.json()
+  //     } catch (error) {
+  //       console.log('Error deleting course' , error)
+  //     }
       
-    }
+  //   }
 
 
 
 
-     useEffect(()=>{
-      fetchCourse()
-     },[])
+  //    useEffect(()=>{
+  //     fetchCourse()
+  //    },[])
 
   return (
     <div>
