@@ -29,6 +29,7 @@ import { Link } from "react-router-dom";
 import './Navbar.css';
 import Login from "./Login";
 import TextTiming from "./TextTiming";
+import TopScrollBtn from "./TopScrollBtn";
 
 function Navbar() {
   const dynamicTexts = [
@@ -248,14 +249,12 @@ function Navbar() {
             )}
       </header>
        
-       <div className="h-[100vh] flex w-full">
+       <div className="h-[100vh] flex flex-col-reverse  items-center w-full md:flex-row lg:flex-row">
 
-        {/* <div className="w-1/2 flex  items-center justify-center"><h1 className="text-4xl font-bold">UpSkill And Land </h1>
-        <div><TextTiming className="text-5xl" text="Your Dream" speed={100} pauseDuration={1000} /></div>
-        </div> */}
+        
 
       <div className="flex items-center justify-center w-1/2">
-      {/* <h1 className="text-3xl font-bold mb-4">UpSkill And Land Your</h1>  */}
+
       <div className="block">
       <TextTiming 
         texts={dynamicTexts} 
@@ -265,11 +264,46 @@ function Navbar() {
       </div>
     </div>
 
-
-
         <div className="w-1/2 items-center flex "><img src={logo} alt="" width={500} /></div>
        </div>
+        
+        <div className="h-[100vh]"> 
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-slate-500 h-[60vh]">
 
+
+            <div className=""> 
+            <img src={logo}alt="" width={80} /><h1>Ainwik Infotech</h1>
+                    <p>Great Lesson Ideas And Lesson Plans for ESL Teacher!Educator can Customize lesson plan to best </p>
+            </div>
+           
+           
+            <div className="bg-red-400">
+              <h1>Company</h1>
+                   <h1>About</h1>
+                   <h1>Courses</h1>
+                   <h1>Events</h1>
+                   <h1>Instructor</h1>
+                   <h1>Career</h1>
+                   <h1>Become a Teacher</h1>
+                   <h1>Contact</h1>
+            </div>
+
+
+
+            <div className="bg-blue-300">
+            <h1>Platform</h1>
+                   <h1>Browser Libreary</h1>
+                   <h1>Partners</h1>
+                   <h1>News & Blog</h1>
+                   <h1>FAQs</h1>
+                   <h1>Tutorial</h1>
+            </div>
+
+
+            <div className=""><h1>Subscribe</h1></div>
+           </div>
+        </div>
+        <TopScrollBtn/>
     </div>
   );
 }

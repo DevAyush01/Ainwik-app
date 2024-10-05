@@ -22,3 +22,61 @@
 .animate-blink {
   animation: blink 0.6s infinite;
 }
+
+/*
+  Based on TailwindCSS recommendations,
+  consider using classes instead of the `@apply` directive
+  @see https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction
+*/
+/* From Uiverse.io by wilsondesouza */
+ul {
+  list-style: none;
+}
+.example-2 {
+  @apply flex justify-center items-center;
+}
+.example-2 .icon-content {
+  @apply relative mx-2.5 my-0;
+}
+.example-2 .icon-content .tooltip {
+  @apply absolute top-[-30px] -translate-x-2/4 text-white opacity-0 invisible text-sm transition-all duration-[0.3s] ease-[ease] px-2.5 py-1.5 rounded-[5px] left-2/4;
+}
+.example-2 .icon-content:hover .tooltip {
+  @apply opacity-100 visible top-[-50px];
+}
+.example-2 .icon-content a {
+  @apply relative overflow-hidden flex justify-center items-center w-[50px] h-[50px] text-[#4d4d4d] bg-white transition-all duration-[0.3s] ease-[ease-in-out] rounded-[50%] hover:shadow-[3px_2px_45px_0px_rgb(0_0_0_/_12%)] hover:text-[white];
+}
+.example-2 .icon-content a svg {
+  @apply relative z-[1] w-[30px] h-[30px];
+}
+.example-2 .icon-content a .filled {
+  @apply absolute w-full h-0 bg-black transition-all duration-[0.3s] ease-[ease-in-out] left-0 top-auto bottom-0;
+}
+.example-2 .icon-content a:hover .filled {
+  @apply h-full;
+}
+.example-2 .icon-content a[data-social="linkedin"] .filled,
+.example-2 .icon-content a[data-social="linkedin"] ~ .tooltip {
+  @apply bg-[#0274b3];
+}
+.example-2 .icon-content a[data-social="github"] .filled,
+.example-2 .icon-content a[data-social="github"] ~ .tooltip {
+  @apply bg-[#24262a];
+}
+.example-2 .icon-content a[data-social="instagram"] .filled,
+.example-2 .icon-content a[data-social="instagram"] ~ .tooltip {
+  background: linear-gradient(
+    45deg,
+    #405de6,
+    #5b51db,
+    #b33ab4,
+    #c135b4,
+    #e1306c,
+    #fd1f1f
+  );
+}
+.example-2 .icon-content a[data-social="youtube"] .filled,
+.example-2 .icon-content a[data-social="youtube"] ~ .tooltip {
+  @apply bg-[#ff0000];
+}
