@@ -1,13 +1,14 @@
 const express = require('express')
 const app = express()
 
-require('../config/dbConn')
+const connectDB = require('../config/dbConn')
 const parser = require('body-parser')
 const Event = require('../config/Events')
 const upload = require('../multerConfig')
 
 app.use(parser.json())
 app.use(express.json())
+connectDB()
 
 app.get('/hi' , async(req,res)=>{
     res.json({message : "hii"})

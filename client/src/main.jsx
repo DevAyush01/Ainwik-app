@@ -10,8 +10,8 @@ import NewCourse from './NewCourse.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* <Course/> */}
-    <App />
+    {/* <App /> */}
     {/* <Navbar/> */}
-    {/* <NewCourse/> */}
+    <NewCourse/>
   </StrictMode>,
 )

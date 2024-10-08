@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express()
-require('../config/dbConn')
+const connectDB =require('../config/dbConn')
 const parser = require('body-parser');
 const Student = require('../config/StudentRegister');
 const jwt = require("jsonwebtoken")
@@ -10,6 +10,7 @@ const upload = require('../multerConfig')
 
 app.use(parser.json())
 app.use(express.json())
+connectDB();
 
 
 

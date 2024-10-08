@@ -8,9 +8,9 @@ const StudentRegister = require('./utils/student_register_api')
 const Event = require('./utils/event_api')
 const Certificate = require('./utils/certificate_api')
 const authRoutes = require('./routes/admin_api')
+const razorpay = require('./utils/razor_pay')
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-
 
 const cors = require('cors');
 app.use(cors())
@@ -22,8 +22,10 @@ app.use(parser.json());
 
 const port = process.env.PORT || 4455;
 
-const uploadDir = path.join(__dirname, '..//uploads');
+const uploadDir = path.join(__dirname, '../uploads');
 app.use('//uploads', express.static(uploadDir));
+
+app.use('/api', razorpay)
 
 app.use('/api/auth',authRoutes)
 app.use('/api',coursesapp)
