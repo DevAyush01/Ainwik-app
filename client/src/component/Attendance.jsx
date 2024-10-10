@@ -5,16 +5,17 @@ function Attendance() {
     const [message,setMessage] = useState('')
 
     const formatDateTime = (isoString , userTimeZone) => {
-        const date = new Date(isoString);
-        return date.toLocaleString('en-IN', {
-            timeZone: userTimeZone, 
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+        return moment(isoString).tz(userTimeZone).toLocaleString();
+        // const date = new Date(isoString);
+        // return date.toLocaleString('en-IN', {
+        //     timeZone: userTimeZone, 
+        //     year: 'numeric',
+        //     month: '2-digit',
+        //     day: '2-digit',
+        //     hour: '2-digit',
+        //     minute: '2-digit',
+        //     hour12: true
+        // });
     }
 
     const handlePunchIn = async()=>{
