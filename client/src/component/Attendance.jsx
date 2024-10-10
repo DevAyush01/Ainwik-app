@@ -4,10 +4,10 @@ function Attendance() {
     const [studentName, setStudentName] = useState('')
     const [message,setMessage] = useState('')
 
-    const formatDateTime = (isoString) => {
+    const formatDateTime = (isoString , userTimeZone) => {
         const date = new Date(isoString);
         return date.toLocaleString('en-IN', {
-            timeZone: 'Asia/Kolkata', 
+            timeZone: userTimeZone, 
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -33,8 +33,8 @@ function Attendance() {
 
             const data = await response.json()
             // const punchInDate = new Date(data.punchIn)
-            setMessage(`${studentName} Punched in at ${formatDateTime(data.punchIn)}`);
-
+            setMessage(`${studentName} Punched in at ${formatDateTime(data.punchIn, 'Asia/Kolkata')}`);
+            
         } catch (error) {
             setMessage('Failed to punch in. Please try again.')
             console.error('Error saving attendance:', error); 
