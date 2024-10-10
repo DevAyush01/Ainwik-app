@@ -2,7 +2,6 @@ const Course = require("../config/User");
 const express = require('express');
 const app = express();
 const upload = require('../multerConfig')
-// app.use('/uploads', express.static('.././uploads'));
 
 
 app.post('/add_course', upload.single('image'), async (req,res)=>{

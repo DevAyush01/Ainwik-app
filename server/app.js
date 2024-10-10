@@ -9,6 +9,7 @@ const Event = require('./utils/event_api')
 const Certificate = require('./utils/certificate_api')
 const authRoutes = require('./routes/admin_api')
 const razorpay = require('./utils/razor_pay')
+const Attendance = require('./utils/attendance_api')
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
@@ -33,6 +34,7 @@ app.use('/api',Slider)
 app.use('/api',StudentRegister)
 app.use('/api',Event)
 app.use('/api' , Certificate)
+app.use('/api', Attendance)
 
 
 app.listen(port, (err) => {
