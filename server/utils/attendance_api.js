@@ -38,7 +38,7 @@ app.post('/punchin', async (req,res)=>{
     return res.status(400).json({ message: "Student name is required" });
   }
 
-  const punchInTime = new Date().toISOString();
+  const punchInTime = new Date()  
 
 
    const attendance = new Attendance({
@@ -60,7 +60,7 @@ app.post('/punchout', async (req,res)=>{
    
     const {studentName} = req.body;
 
-    const punchOutTime = new Date().toISOString();
+    const punchOutTime = new Date()
 
     try {
           
