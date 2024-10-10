@@ -37,6 +37,7 @@ function Attendance() {
 
         } catch (error) {
             setMessage('Failed to punch in. Please try again.')
+            console.error('Error saving attendance:', error); 
         }
     }
 

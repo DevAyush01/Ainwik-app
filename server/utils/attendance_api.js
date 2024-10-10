@@ -30,7 +30,6 @@ const formatDateTime = (date) => {
     return `${hours.toString().padStart(2, '0')} hours ${minutes.toString().padStart(2, '0')} minutes`;
   };
   
-  const { zonedTimeToUtc } = require('date-fns-tz');
 
 app.post('/punchin', async (req,res)=>{
    const {studentName} = req.body
@@ -39,7 +38,7 @@ app.post('/punchin', async (req,res)=>{
     return res.status(400).json({ message: "Student name is required" });
   }
 
-  const punchInTime = zonedTimeToUtc(new Date(), 'Asia/Kolkata');  
+  const punchInTime = new Date().toISOString();
 
 
    const attendance = new Attendance({
@@ -61,7 +60,7 @@ app.post('/punchout', async (req,res)=>{
    
     const {studentName} = req.body;
 
-    const punchOutTime = new Date()
+    const punchOutTime = new Date().toISOString();
 
     try {
           
