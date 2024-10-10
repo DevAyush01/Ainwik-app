@@ -3,22 +3,37 @@ import React, { useState } from 'react'
 function Attendance() {
     const [studentName, setStudentName] = useState('')
     const [message,setMessage] = useState('')
+
+    const formatDateTime = (isoString) => {
+        const date = new Date(isoString);
+        return date.toLocaleString('en-IN', {
+            timeZone: 'Asia/Kolkata', 
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
     const handlePunchIn = async()=>{
         try {
             
-            const response = await fetch ('http://localhost:4455/api/punchin', {
+            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchin', {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
                 },
                 body : JSON.stringify({studentName})
             })
-            if(!response){
+            if(!response.ok){
                 throw new Error('failed to punch in')
             }
 
             const data = await response.json()
-            setMessage(`${studentName} Punched in at ${data.punchIn}`)
+            // const punchInDate = new Date(data.punchIn)
+            setMessage(`${studentName} Punched in at ${formatDateTime(data.punchIn)}`);
 
         } catch (error) {
             setMessage('Failed to punch in. Please try again.')
@@ -27,7 +42,7 @@ function Attendance() {
 
     const handlePunchOut = async ()=>{
         try {
-            const response = await fetch ('http://localhost:4455/api/punchout', {
+            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchout', {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
@@ -39,7 +54,7 @@ function Attendance() {
               }
 
               const data = await response.json()
-              setMessage(`${studentName} Punched out at ${data.punchOut}. Total time: ${data.totalTime}`)
+              setMessage(`${studentName} Punched out at ${formatDateTime(data.punchOut)}. Total time: ${data.totalTime}`)
               
         } catch (error) {
             setMessage('Failed to punch out. Please try again.')

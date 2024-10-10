@@ -9,15 +9,19 @@ connectDB()
 
 
 const formatDateTime = (date) => {
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
+    return date.toISOString();
   };
+
+// const formatDateTime = (date) => {
+//     return date.toLocaleString('en-US', {
+//       year: 'numeric',
+//       month: '2-digit',
+//       day: '2-digit',
+//       hour: '2-digit',
+//       minute: '2-digit',
+//       hour12: true
+//     });
+//   };
 
   const calculateTimeDifference = (start, end) => {
     const diff = end - start; // difference in milliseconds
@@ -34,7 +38,8 @@ app.post('/punchin', async (req,res)=>{
     return res.status(400).json({ message: "Student name is required" });
   }
 
-   const punchInTime = formatDateTime(new Date())
+  const punchInTime = new Date()  
+
 
    const attendance = new Attendance({
     studentName,
@@ -43,7 +48,7 @@ app.post('/punchin', async (req,res)=>{
 
     try {
         await attendance.save()
-        res.status(201).json(attendance)
+        res.status(201).json({...attendance.toObject(),punchIn: punchInTime.toISOString(),})
 
     } catch (error) {
         res.status(400).json({message : error.message})
@@ -67,12 +72,16 @@ app.post('/punchout', async (req,res)=>{
         const punchInDate = new Date(attendance.punchIn);
         const totalTime = calculateTimeDifference(punchInDate, punchOutTime);
 
-        attendance.punchOut = formatDateTime(punchOutTime);
+        attendance.punchOut = punchOutTime;
         attendance.totalTime = totalTime;
 
         await attendance.save();
 
-        res.status(200).json(attendance)
+        res.status(200).json({
+            ...attendance.toObject(),
+      punchIn: formatDateTime(attendance.punchIn),
+      punchOut: formatDateTime(punchOutTime)
+        })
 
 
     } catch (error) {
@@ -80,5 +89,31 @@ app.post('/punchout', async (req,res)=>{
     }
 
 })
+
+
+app.get('/totaltime/:studentName', async (req, res) => {
+    const { studentName } = req.params;
+  
+    try {
+      const attendances = await Attendance.find({ studentName, totalTime: { $ne: null } });
+      
+      let totalMinutes = 0;
+      attendances.forEach(record => {
+        const [hours, minutes] = record.totalTime.split(' hours ');
+        totalMinutes += parseInt(hours) * 60 + parseInt(minutes);
+      });
+  
+      const totalHours = Math.floor(totalMinutes / 60);
+      const remainingMinutes = totalMinutes % 60;
+      const totalTime = `${totalHours.toString().padStart(2, '0')} hours ${remainingMinutes.toString().padStart(2, '0')} minutes`;
+      
+      res.status(200).json({ 
+        studentName, 
+        totalTime
+      });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
 
 module.exports = app
