@@ -6,12 +6,12 @@ const AttendanceSchema = mongoose.Schema({
         required: true
       },
     punchIn : {
-        type: String,
+        type: Date,
         default : null
     },
 
     punchOut : {
-        type: String,
+        type: Date,
         default :null
     },
     totalTime : {
