@@ -1,8 +1,7 @@
 const express = require('express')
 const connectDB = require('../config/dbConn');
 const Attendance = require('../config/Attendance')
-import moment from 'moment';
-
+const moment = require('moment');
 
 const app = express();
 app.use(express.json());
