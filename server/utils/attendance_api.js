@@ -59,6 +59,10 @@ app.post('/punchout', async (req,res)=>{
    
     const {studentName} = req.body;
 
+    if (!studentName) {
+      return res.status(400).json({ message: "Student name is required." });
+  }
+
     const punchOutTime = new Date()
 
     try {
@@ -78,8 +82,8 @@ app.post('/punchout', async (req,res)=>{
 
         res.status(200).json({
             ...attendance.toObject(),
-      punchIn: formatDateTime(attendance.punchIn),
-      punchOut: formatDateTime(punchOutTime)
+            punchIn: attendance.punchIn.toISOString(),
+            punchOut: punchOutTime.toISOString()
         })
 
 
