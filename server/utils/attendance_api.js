@@ -1,6 +1,7 @@
 const express = require('express')
 const connectDB = require('../config/dbConn');
 const Attendance = require('../config/Attendance')
+import moment from 'moment/moment';
 
 
 const app = express();
@@ -8,9 +9,8 @@ app.use(express.json());
 connectDB()
 
 
-const formatDateTime = (date) => {
-    return date.toISOString();
-  };
+const formatDateTime = (isoString) => {
+  return moment(isoString).format('h:mm a');   };
 
 // const formatDateTime = (date) => {
 //     return date.toLocaleString('en-US', {
@@ -38,7 +38,7 @@ app.post('/punchin', async (req,res)=>{
     return res.status(400).json({ message: "Student name is required" });
   }
 
-  const punchInTime = new Date().toISOString();
+  const punchInTime = new Date()
 
 
    const attendance = new Attendance({
@@ -48,7 +48,7 @@ app.post('/punchin', async (req,res)=>{
 
     try {
         await attendance.save()
-        res.status(201).json({...attendance.toObject(),punchIn: punchInTime.toISOString(),})
+        res.status(201).json({...attendance.toObject(),punchIn: punchInTime.toISOString()})
 
     } catch (error) {
         res.status(400).json({message : error.message})
@@ -60,7 +60,7 @@ app.post('/punchout', async (req,res)=>{
    
     const {studentName} = req.body;
 
-    const punchOutTime = new Date().toISOString();
+    const punchOutTime = new Date()
 
     try {
           
