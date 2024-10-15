@@ -5,6 +5,7 @@ import moment from 'moment-timezone'; // Import moment-timezone
 function Attendance() {
     const [studentName, setStudentName] = useState('')
     const [message,setMessage] = useState('')
+    const [attendanceRecords, setAttendanceRecords] = useState([])
 
     const formatDateTime = (timeString) => {
         console.log('Formatting time:', timeString)
@@ -14,7 +15,7 @@ function Attendance() {
     
     // If parsing is valid, format the time
     if (parsedTime.isValid()) {
-      const formattedTime = parsedTime.format('hh:mm A')
+      const formattedTime = parsedTime.format('YYYY-MM-DD , hh:mm A')
       console.log('Formatted time:', formattedTime)
       return formattedTime
     }
@@ -22,16 +23,6 @@ function Attendance() {
     // If parsing fails, return the original string
     console.log('Unable to parse time:', timeString)
     return timeString
-        // const date = new Date(isoString);
-        // return date.toLocaleString('en-IN', {
-        //     timeZone: userTimeZone, 
-        //     year: 'numeric',
-        //     month: '2-digit',
-        //     day: '2-digit',
-        //     hour: '2-digit',
-        //     minute: '2-digit',
-        //     hour12: true
-        // });
     }
 
     const handlePunchIn = async()=>{
@@ -104,6 +95,25 @@ function Attendance() {
         }
     }
 
+    const fetchAttendanceRecords = async () => {
+        try {
+          const response = await fetch(`https://ainwik-app-4.onrender.com/api/attendance/${studentName}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch attendance records')
+          }
+          const data = await response.json()
+          setAttendanceRecords(data)
+        } catch (error) {
+          console.error('Error fetching attendance records:', error)
+        }
+      }
+    
+      useEffect(() => {
+        if (studentName) {
+          fetchAttendanceRecords()
+        }
+      }, [studentName])
+
 
   return (
     <div>
@@ -140,11 +150,39 @@ function Attendance() {
       )}</div>
 
 
-     {/* <div>
-        {studentName.map((record, index)=>{
-
-        })}
-     </div> */}
+<div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Attendance Records</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 p-2">Student Name</th>
+                <th className="border border-gray-300 p-2">Date</th>
+                <th className="border border-gray-300 p-2">Punch In Time</th>
+                <th className="border border-gray-300 p-2">Punch Out Time</th>
+                <th className="border border-gray-300 p-2">Total Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attendanceRecords.map((record, index) => {
+                const punchInDateTime = moment(record.punchIn)
+                const punchOutDateTime = record.punchOut ? moment(record.punchOut) : null
+                return (
+                  <tr key={index}>
+                    <td className="border border-gray-300 p-2">{record.studentName}</td>
+                    <td className="border border-gray-300 p-2">{punchInDateTime.format('YYYY-MM-DD')}</td>
+                    <td className="border border-gray-300 p-2">{punchInDateTime.format('HH:mm:ss')}</td>
+                    <td className="border border-gray-300 p-2">
+                      {punchOutDateTime ? punchOutDateTime.format('HH:mm:ss') : 'N/A'}
+                    </td>
+                    <td className="border border-gray-300 p-2">{record.totalTime || 'N/A'}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
     </div>
   )

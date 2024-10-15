@@ -119,4 +119,24 @@ app.get('/totaltime/:studentName', async (req, res) => {
     }
   });
 
+  app.get('/attendance/:studentName', async (req, res) => {
+    const { studentName } = req.params;
+  
+    try {
+      const attendances = await Attendance.find({ studentName }).sort({ punchIn: -1 });
+  
+      const formattedAttendances = attendances.map(record => ({
+        studentName: record.studentName,
+        date: formatDateTime(record.punchIn).split(' ')[0],
+        punchIn: formatDateTime(record.punchIn).split(' ')[1],
+        punchOut: record.punchOut ? formatDateTime(record.punchOut).split(' ')[1] : 'N/A',
+        totalTime: record.totalTime || 'N/A'
+      }));
+  
+      res.status(200).json(formattedAttendances);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
 module.exports = app
