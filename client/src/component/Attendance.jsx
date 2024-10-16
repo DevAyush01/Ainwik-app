@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import moment from 'moment-timezone'; // Import moment-timezone
 
 
@@ -8,24 +8,25 @@ function Attendance() {
     const [attendanceRecords, setAttendanceRecords] = useState([])
 
     const formatDateTime = (timeString) => {
-        console.log('Formatting time:', timeString)
-    
-    // Parse the time string
-    const parsedTime = moment(timeString)
-    
-    // If parsing is valid, format the time
-    if (parsedTime.isValid()) {
-      const formattedTime = parsedTime.format('YYYY-MM-DD , hh:mm A')
-      console.log('Formatted time:', formattedTime)
-      return formattedTime
-    }
-    
-    // If parsing fails, return the original string
-    console.log('Unable to parse time:', timeString)
-    return timeString
+        console.log('Formatting time:', timeString);
+        if (!timeString || typeof timeString !== 'string') return 'N/A'; // Handle empty or invalid inputs
+
+        const parsedTime = moment(timeString);
+        if (parsedTime.isValid()) {
+            return parsedTime.format('YYYY-MM-DD, hh:mm A');
+        }
+
+        console.log('Unable to parse time:', timeString);
+        return 'Invalid Time';
     }
 
     const handlePunchIn = async()=>{
+        if (!studentName) {
+            setMessage('Please enter a student name.');
+            return;
+        }
+
+
         try {
             
             const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchin', {
@@ -45,11 +46,12 @@ function Attendance() {
 
 
             const data = await response.json()
-            const formattedTime = formatDateTime(data.punchIn, 'Asia/Kolkata')
-
-
-           
+            const formattedTime = formatDateTime(data.punchIn);
             setMessage(`${studentName} Punched in at ${formattedTime}`);
+            // const formattedTime = formatDateTime(data.punchIn, 'Asia/Kolkata')
+            // setMessage(`${studentName} Punched in at ${formattedTime}`);
+
+            fetchAttendanceRecords();
 
         } catch (error) {
             setMessage('Failed to punch in. Please try again.')
@@ -85,10 +87,14 @@ function Attendance() {
               if (!data.punchOut) {
                 throw new Error('Invalid punch out time received');
             }
-            const formattedPunchOut = formatDateTime(data.punchOut, 'Asia/Kolkata')
 
-            //   const punchOutDate = data.punchOut;
-              setMessage(`${studentName} Punched out at ${formattedPunchOut}. Total time: ${data.totalTime}`)
+            const formattedPunchOut = formatDateTime(data.punchOut);
+            setMessage(`${studentName} Punched out at ${formattedPunchOut}. Total time: ${data.totalTime}`);
+
+            // const formattedPunchOut = formatDateTime(data.punchOut, 'Asia/Kolkata')
+            //   setMessage(`${studentName} Punched out at ${formattedPunchOut}. Total time: ${data.totalTime}`)
+
+              fetchAttendanceRecords();
               
         } catch (error) {
             setMessage('Failed to punch out. Please try again.')
@@ -96,23 +102,26 @@ function Attendance() {
     }
 
     const fetchAttendanceRecords = async () => {
-        try {
-          const response = await fetch(`https://ainwik-app-4.onrender.com/api/attendance/${studentName}`)
-          if (!response.ok) {
-            throw new Error('Failed to fetch attendance records')
+      
+
+
+          try {
+            const response = await fetch(`https://ainwik-app-4.onrender.com/api/attendance`)
+            if (!response.ok) {
+              throw new Error('Failed to fetch attendance records')
+            }
+            const data = await response.json()
+            console.log('Fetched attendance records:', data)
+            setAttendanceRecords(data)
+          } catch (error) {
+            console.error('Error fetching attendance records:', error)
+            setMessage('Failed to fetch attendance records. Please try again.')
           }
-          const data = await response.json()
-          setAttendanceRecords(data)
-        } catch (error) {
-          console.error('Error fetching attendance records:', error)
         }
-      }
     
       useEffect(() => {
-        if (studentName) {
           fetchAttendanceRecords()
-        }
-      }, [studentName])
+      }, [])
 
 
   return (
@@ -164,17 +173,18 @@ function Attendance() {
               </tr>
             </thead>
             <tbody>
-              {attendanceRecords.map((record, index) => {
-                const punchInDateTime = moment(record.punchIn)
-                const punchOutDateTime = record.punchOut ? moment(record.punchOut) : null
+            {attendanceRecords.map((record, index) => {
+                const punchInFormatted = formatDateTime(record.punchIn)
+                const punchOutFormatted = formatDateTime(record.punchOut)
+                const [date, punchInTime] = punchInFormatted.split(',')
+                const [, punchOutTime] = punchOutFormatted.split(',')
+
                 return (
                   <tr key={index}>
                     <td className="border border-gray-300 p-2">{record.studentName}</td>
-                    <td className="border border-gray-300 p-2">{punchInDateTime.format('YYYY-MM-DD')}</td>
-                    <td className="border border-gray-300 p-2">{punchInDateTime.format('HH:mm:ss')}</td>
-                    <td className="border border-gray-300 p-2">
-                      {punchOutDateTime ? punchOutDateTime.format('HH:mm:ss') : 'N/A'}
-                    </td>
+                    <td className="border border-gray-300 p-2">{date || 'N/A'}</td>
+                    <td className="border border-gray-300 p-2">{punchInTime ? punchInTime.trim() : 'N/A'}</td>
+                    <td className="border border-gray-300 p-2">{punchOutTime ? punchOutTime.trim() : 'N/A'}</td>
                     <td className="border border-gray-300 p-2">{record.totalTime || 'N/A'}</td>
                   </tr>
                 )

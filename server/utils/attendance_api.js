@@ -119,24 +119,22 @@ app.get('/totaltime/:studentName', async (req, res) => {
     }
   });
 
-  app.get('/attendance/:studentName', async (req, res) => {
-    const { studentName } = req.params;
-  
+  app.get('/attendance', async (req, res) => {
     try {
-      const attendances = await Attendance.find({ studentName }).sort({ punchIn: -1 });
-  
+      const attendances = await Attendance.find().sort({ punchIn: -1 })
+      
       const formattedAttendances = attendances.map(record => ({
         studentName: record.studentName,
-        date: formatDateTime(record.punchIn).split(' ')[0],
-        punchIn: formatDateTime(record.punchIn).split(' ')[1],
-        punchOut: record.punchOut ? formatDateTime(record.punchOut).split(' ')[1] : 'N/A',
+        punchIn: formatDateTime(record.punchIn),
+        punchOut: record.punchOut ? formatDateTime(record.punchOut) : 'N/A',
         totalTime: record.totalTime || 'N/A'
-      }));
+      }))
   
-      res.status(200).json(formattedAttendances);
+      res.status(200).json(formattedAttendances)
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      console.error('Error fetching attendance records:', error)
+      res.status(500).json({ message: 'Failed to fetch attendance records', error: error.message })
     }
-  });
+  })
 
 module.exports = app
