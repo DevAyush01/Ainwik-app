@@ -166,29 +166,20 @@ function Attendance() {
             <thead>
               <tr className="bg-gray-100">
                 <th className="border border-gray-300 p-2">Student Name</th>
-                <th className="border border-gray-300 p-2">Date</th>
                 <th className="border border-gray-300 p-2">Punch In Time</th>
                 <th className="border border-gray-300 p-2">Punch Out Time</th>
                 <th className="border border-gray-300 p-2">Total Time</th>
               </tr>
             </thead>
             <tbody>
-            {attendanceRecords.map((record, index) => {
-                const punchInFormatted = formatDateTime(record.punchIn)
-                const punchOutFormatted = formatDateTime(record.punchOut)
-                const [date, punchInTime] = punchInFormatted.split(',')
-                const [, punchOutTime] = punchOutFormatted.split(',')
-
-                return (
+            {attendanceRecords.map((record, index) => (
                   <tr key={index}>
                     <td className="border border-gray-300 p-2">{record.studentName}</td>
-                    <td className="border border-gray-300 p-2">{date || 'N/A'}</td>
-                    <td className="border border-gray-300 p-2">{punchInTime ? punchInTime.trim() : 'N/A'}</td>
-                    <td className="border border-gray-300 p-2">{punchOutTime ? punchOutTime.trim() : 'N/A'}</td>
+                    <td className="border border-gray-300 p-2">{formatDateTime(record.punchIn)}</td>
+                    <td className="border border-gray-300 p-2">{formatDateTime(record.punchOut)}</td>
                     <td className="border border-gray-300 p-2">{record.totalTime || 'N/A'}</td>
                   </tr>
-                )
-              })}
+                ))}
             </tbody>
           </table>
         </div>

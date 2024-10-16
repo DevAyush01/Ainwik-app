@@ -1,7 +1,7 @@
 const express = require('express')
 const connectDB = require('../config/dbConn');
 const Attendance = require('../config/Attendance')
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 const app = express();
 app.use(express.json());
@@ -9,18 +9,8 @@ connectDB()
 
 
 const formatDateTime = (isoString) => {
-  return moment(isoString).format('h:mm a');   };
-
-// const formatDateTime = (date) => {
-//     return date.toLocaleString('en-US', {
-//       year: 'numeric',
-//       month: '2-digit',
-//       day: '2-digit',
-//       hour: '2-digit',
-//       minute: '2-digit',
-//       hour12: true
-//     });
-//   };
+  return moment(isoString).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss')
+}
 
   const calculateTimeDifference = (start, end) => {
     const diff = end - start; // difference in milliseconds
@@ -47,7 +37,7 @@ app.post('/punchin', async (req,res)=>{
 
     try {
         await attendance.save()
-        res.status(201).json({...attendance.toObject(),punchIn: punchInTime.toISOString()})
+        res.status(201).json({...attendance.toObject(),punchIn:  formatDateTime(punchInTime)})
 
     } catch (error) {
         res.status(400).json({message : error.message})
@@ -82,8 +72,8 @@ app.post('/punchout', async (req,res)=>{
 
         res.status(200).json({
             ...attendance.toObject(),
-            punchIn: attendance.punchIn.toISOString(),
-            punchOut: punchOutTime.toISOString()
+            punchIn: formatDateTime(attendance.punchIn),
+            punchOut: formatDateTime(punchOutTime)
         })
 
 
