@@ -2,10 +2,15 @@ const express = require('express')
 const connectDB = require('../config/dbConn');
 const Attendance = require('../config/Attendance')
 const moment = require('moment-timezone');
+const wifi= require('node-wifi')
 
 const app = express();
 app.use(express.json());
 connectDB()
+
+wifi.init({
+  iface : null
+})
 
 
 const formatDateTime = (isoString) => {
@@ -18,6 +23,29 @@ const formatDateTime = (isoString) => {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours.toString().padStart(2, '0')} hours ${minutes.toString().padStart(2, '0')} minutes`;
   };
+
+  const checkWifiConnection = ()=>{
+    return new Promise((resolve , reject)=>{
+    wifi.getCurrentConnections((error, currentConnections)=>{
+      if(error){
+        console.log('Error getting wifi connection : ' ,error)
+        reject(error)
+      }else{
+        const ainwikWifi = currentConnections.find(connection => connection.ssid === 'AinwikConnect')
+        resolve(!!ainwikWifi)
+      }
+    })
+    })
+  }
+
+  app.get('/check-wifi', async (req,res)=>{
+    try {
+      const isConnected = await checkWifiConnection()
+      res.json({isConnected})
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to check WiFi connection', error: error.message })
+    }
+  })
   
 
 app.post('/punchin', async (req,res)=>{
@@ -27,6 +55,14 @@ app.post('/punchin', async (req,res)=>{
     return res.status(400).json({ message: "Student name is required" });
   }
 
+  try {
+     
+    const isConnected = await checkWifiConnection()
+
+    if(!isConnected){
+      return res.status(403).json({ message: "You must be connected to the Ainwik Infotech WiFi to punch in" })
+    }
+
   const punchInTime = new Date()
 
 
@@ -35,7 +71,7 @@ app.post('/punchin', async (req,res)=>{
     punchIn : punchInTime,
    })
 
-    try {
+    
         await attendance.save()
         res.status(201).json({...attendance.toObject(),punchIn:  formatDateTime(punchInTime)})
 
@@ -53,9 +89,13 @@ app.post('/punchout', async (req,res)=>{
       return res.status(400).json({ message: "Student name is required." });
   }
 
-    const punchOutTime = new Date()
+  try {
+    const isConnected = await checkWifiConnection()
+    if (!isConnected) {
+      return res.status(403).json({ message: "You must be connected to the Ainwik Infotech WiFi to punch out" })
+    }
 
-    try {
+    const punchOutTime = new Date()
           
         const attendance = await Attendance.findOne({studentName , punchOut : null})
         if(!attendance){

@@ -6,6 +6,7 @@ function Attendance() {
     const [studentName, setStudentName] = useState('')
     const [message,setMessage] = useState('')
     const [attendanceRecords, setAttendanceRecords] = useState([])
+    const [isConnectedToWifi, setIsConnectedToWifi] = useState(false)
 
     const formatDateTime = (timeString) => {
         console.log('Formatting time:', timeString);
@@ -20,16 +21,33 @@ function Attendance() {
         return 'Invalid Time';
     }
 
+    const checkWifiConnection = async()=>{
+         try {
+            const response = await fetch('http://localhost:4455/api/check-wifi')
+            const data = await response.json()
+            setIsConnectedToWifi(data.isConnected)
+            
+         } catch (error) {
+          console.error('Error Check Wifi Connection', error)
+          setIsConnectedToWifi(false)
+         }
+    }
+
     const handlePunchIn = async()=>{
         if (!studentName) {
             setMessage('Please enter a student name.');
             return;
         }
 
+        if(!isConnectedToWifi){
+          alert('You must be connected to the Ainwik Infotech WiFi to punch in.')
+          return
+        }
+
 
         try {
             
-            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchin', {
+            const response = await fetch ('http://localhost:4455/api/punchin', {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
@@ -65,8 +83,13 @@ function Attendance() {
             return;
         }
 
+        if(!isConnectedToWifi){
+          alert('You must be connected to the Ainwik Infotech WiFi to punch out.')
+          return
+        }
+
         try {
-            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchout', {
+            const response = await fetch ('http://localhost:4455/api/punchout', {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
@@ -103,10 +126,8 @@ function Attendance() {
 
     const fetchAttendanceRecords = async () => {
       
-
-
           try {
-            const response = await fetch(`https://ainwik-app-4.onrender.com/api/attendance`)
+            const response = await fetch(`http://localhost:4455/api/attendance`)
             if (!response.ok) {
               throw new Error('Failed to fetch attendance records')
             }
@@ -121,6 +142,9 @@ function Attendance() {
     
       useEffect(() => {
           fetchAttendanceRecords()
+          checkWifiConnection()
+          const intervalId = setInterval(checkWifiConnection,60000)
+          return ()=>clearInterval(intervalId)
       }, [])
 
 
@@ -151,12 +175,18 @@ function Attendance() {
             borderRadius: '5px',
             width: '15%'
           }} 
-          onClick={handlePunchOut}>punch Out</button>
+          onClick={handlePunchOut} disabled={!isConnectedToWifi}>punch Out</button>
 
 
 <div>{message && (
         <p style={{ marginTop: '20px', color: '#333' }}>{message}</p>
       )}</div>
+
+{!isConnectedToWifi && (
+        <p className="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded">
+          You are not connected to the Ainwik Infotech WiFi. Attendance registration is disabled.
+        </p>
+      )}
 
 
 <div className="mt-8">
