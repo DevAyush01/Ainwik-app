@@ -23,7 +23,7 @@ function Attendance() {
 
     const checkWifiConnection = async()=>{
          try {
-            const response = await fetch('http://localhost:4455/api/check-wifi')
+            const response = await fetch('https://ainwik-app-4.onrender.com/api/check-wifi')
             const data = await response.json()
             setIsConnectedToWifi(data.isConnected)
             
@@ -47,7 +47,7 @@ function Attendance() {
 
         try {
             
-            const response = await fetch ('http://localhost:4455/api/punchin', {
+            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchin', {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
@@ -89,7 +89,7 @@ function Attendance() {
         }
 
         try {
-            const response = await fetch ('http://localhost:4455/api/punchout', {
+            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchout', {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
@@ -127,7 +127,7 @@ function Attendance() {
     const fetchAttendanceRecords = async () => {
       
           try {
-            const response = await fetch(`http://localhost:4455/api/attendance`)
+            const response = await fetch(`https://ainwik-app-4.onrender.com/api/attendance`)
             if (!response.ok) {
               throw new Error('Failed to fetch attendance records')
             }
