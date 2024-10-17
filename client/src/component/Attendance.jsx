@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import moment from 'moment-timezone'; // Import moment-timezone
 
+const API_BASE_URL = 'http://localhost:4455/api'
+const isCloudEnvironment = false
+
 
 function Attendance() {
     const [studentName, setStudentName] = useState('')
@@ -22,16 +25,27 @@ function Attendance() {
     }
 
     const checkWifiConnection = async()=>{
-         try {
-            const response = await fetch('https://ainwik-app-4.onrender.com/api/check-wifi')
-            const data = await response.json()
-            console.log('WiFi connection status:', data);
-            setIsConnectedToWifi(data.isConnected)
-            
-         } catch (error) {
-          console.error('Error Check Wifi Connection', error)
-          setIsConnectedToWifi(false)
-         }
+      if (isCloudEnvironment) {
+        setIsConnectedToWifi(true)
+        return
+      }
+
+          try {
+      const response = await fetch(`${API_BASE_URL}/check-wifi`)
+      const data = await response.json()
+      console.log('WiFi connection status:', data)
+      setIsConnectedToWifi(data.isConnected)
+      if (!data.isConnected) {
+        setMessage(`Not connected to AinwikConnect. Available networks: ${data.allConnections.map(conn => conn.ssid).join(', ')}`)
+      } else {
+        setMessage('Connected to AinwikConnect')
+      }
+    } catch (error) {
+      console.error('Error checking WiFi connection:', error)
+      setIsConnectedToWifi(false)
+      setMessage('Failed to check WiFi connection')
+    }
+
     }
 
     const handlePunchIn = async()=>{
@@ -40,15 +54,16 @@ function Attendance() {
             return;
         }
 
-        if(!isConnectedToWifi){
-          alert('You must be connected to the Ainwik Infotech WiFi to punch in.')
-          return
-        }
+          if (!isConnectedToWifi && !isCloudEnvironment) {
+      setMessage('You must be connected to the AinwikConnect WiFi to punch in.')
+      return
+    }
+
 
 
         try {
             
-            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchin', {
+            const response = await fetch (`${API_BASE_URL}/punchin`, {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
@@ -84,13 +99,13 @@ function Attendance() {
             return;
         }
 
-        if(!isConnectedToWifi){
-          alert('You must be connected to the Ainwik Infotech WiFi to punch out.')
+        if (!isConnectedToWifi && !isCloudEnvironment) {
+          setMessage('You must be connected to the AinwikConnect WiFi to punch out.')
           return
         }
 
         try {
-            const response = await fetch ('https://ainwik-app-4.onrender.com/api/punchout', {
+            const response = await fetch (`${API_BASE_URL}/punchout`, {
                 method : "POST",
                 headers : {
                     'Content-Type' : 'application/json',
@@ -128,7 +143,7 @@ function Attendance() {
     const fetchAttendanceRecords = async () => {
       
           try {
-            const response = await fetch(`https://ainwik-app-4.onrender.com/api/attendance`)
+            const response = await fetch(`${API_BASE_URL}/attendance`)
             if (!response.ok) {
               throw new Error('Failed to fetch attendance records')
             }
@@ -165,7 +180,7 @@ function Attendance() {
             borderRadius: '5px',
             width: '15%'
           }} 
-          onClick={handlePunchIn} disabled={!isConnectedToWifi}>Punch In</button>
+          onClick={handlePunchIn} disabled={!isConnectedToWifi && !isCloudEnvironment}>Punch In</button>
 
     <button style={{
             padding: '10px 20px',
@@ -176,16 +191,16 @@ function Attendance() {
             borderRadius: '5px',
             width: '15%'
           }} 
-          onClick={handlePunchOut} disabled={!isConnectedToWifi}>punch Out</button>
+          onClick={handlePunchOut} disabled={!isConnectedToWifi && !isCloudEnvironment}>punch Out</button>
 
 
 <div>{message && (
         <p style={{ marginTop: '20px', color: '#333' }}>{message}</p>
       )}</div>
 
-{!isConnectedToWifi && (
+{!isConnectedToWifi && !isCloudEnvironment && (
         <p className="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded">
-          You are not connected to the Ainwik Infotech WiFi. Attendance registration is disabled.
+          You are not connected to the AinwikConnect WiFi. Attendance registration is disabled.
         </p>
       )}
 
