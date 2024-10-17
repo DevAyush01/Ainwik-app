@@ -2,15 +2,16 @@ const express = require('express')
 const connectDB = require('../config/dbConn');
 const Attendance = require('../config/Attendance')
 const moment = require('moment-timezone');
-const wifi= require('node-wifi')
+const wifi= require('wifi')
 
 const app = express();
 app.use(express.json());
 connectDB()
 
-wifi.init({
-  iface : null
-})
+const isCloudEnvironment = process.env.NODE_ENV === 'production';
+// wifi.init({
+//   iface : null
+// })
 
 const formatDateTime = (isoString) => {
   return moment(isoString).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss')
@@ -23,26 +24,49 @@ const formatDateTime = (isoString) => {
     return `${hours.toString().padStart(2, '0')} hours ${minutes.toString().padStart(2, '0')} minutes`;
   };
 
-  const checkWifiConnection = ()=>{
-    return new Promise((resolve , reject)=>{
-    wifi.getCurrentConnections((error, currentConnections)=>{
-      if (error) {
-        console.log('Error getting wifi connection: ', error)
-        reject(error)
-      } else {
-        console.log('Current Connections:', JSON.stringify(currentConnections, null, 2))
-        const ainwikWifi = currentConnections.find(connection => 
-          connection.ssid === 'connected' && (connection.bssid === 'AinwikConnect' || connection.mac === 'AinwikConnect')
-        )
-        console.log('AinwikConnect WiFi found:', ainwikWifi ? 'Yes' : 'No')
-        if (ainwikWifi) {
-          console.log('AinwikConnect details:', JSON.stringify(ainwikWifi, null, 2))
-        }
-        resolve(!!ainwikWifi)
-      }
-    })
-    })
-  }
+  const checkWifiConnection = async () => {
+    if (isCloudEnvironment) {
+      // Always return true or implement a different check if needed
+      console.log('Bypassing WiFi check in cloud environment.');
+      return true;
+    }
+  
+    try {
+      const currentConnections = await wifi.getCurrentConnections();
+      console.log('Current Connections:', currentConnections);
+      
+      const ainwikWifi = currentConnections.find(connection => 
+        connection.ssid === 'connected' && (connection.bssid === 'AinwikConnect' || connection.mac === 'AinwikConnect')
+      );
+  
+      console.log('AinwikConnect WiFi found:', ainwikWifi ? 'Yes' : 'No');
+      return !!ainwikWifi;
+    } catch (error) {
+      console.error('Error getting WiFi connection:', error);
+      throw error;
+    }
+  };
+
+  // const checkWifiConnection = ()=>{
+  //   return new Promise((resolve , reject)=>{
+  //   wifi.getCurrentConnections((error, currentConnections)=>{
+  //     if (error) {
+  //       console.log('Error getting wifi connection: ', error)
+  //       reject(error)
+  //     } else {
+  //       console.log('Current Connections:', JSON.stringify(currentConnections, null, 2))
+  //       const ainwikWifi = currentConnections.find(connection => 
+  //         connection.ssid === 'connected' && (connection.bssid === 'AinwikConnect' || connection.mac === 'AinwikConnect')
+  //       )
+  //       console.log('AinwikConnect WiFi found:', ainwikWifi ? 'Yes' : 'No')
+  //       if (ainwikWifi) {
+  //         console.log('AinwikConnect details:', JSON.stringify(ainwikWifi, null, 2))
+  //       }
+  //       resolve(!!ainwikWifi)
+  //     }
+  //   })
+  //   })
+  // }
 
   app.get('/check-wifi', async (req,res)=>{
     try {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import moment from 'moment-timezone'; // Import moment-timezone
 
-const API_BASE_URL = 'http://localhost:4455/api'
-const isCloudEnvironment = false
+const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api'
+const isCloudEnvironment = true
 
 
 function Attendance() {
