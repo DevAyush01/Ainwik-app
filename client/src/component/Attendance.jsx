@@ -25,6 +25,7 @@ function Attendance() {
          try {
             const response = await fetch('https://ainwik-app-4.onrender.com/api/check-wifi')
             const data = await response.json()
+            console.log('WiFi connection status:', data);
             setIsConnectedToWifi(data.isConnected)
             
          } catch (error) {
@@ -143,7 +144,7 @@ function Attendance() {
       useEffect(() => {
           fetchAttendanceRecords()
           checkWifiConnection()
-          const intervalId = setInterval(checkWifiConnection,60000)
+          const intervalId = setInterval(checkWifiConnection,10000)
           return ()=>clearInterval(intervalId)
       }, [])
 
@@ -164,7 +165,7 @@ function Attendance() {
             borderRadius: '5px',
             width: '15%'
           }} 
-          onClick={handlePunchIn}>Punch In</button>
+          onClick={handlePunchIn} disabled={!isConnectedToWifi}>Punch In</button>
 
     <button style={{
             padding: '10px 20px',

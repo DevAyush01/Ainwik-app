@@ -12,7 +12,6 @@ wifi.init({
   iface : null
 })
 
-
 const formatDateTime = (isoString) => {
   return moment(isoString).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss')
 }
@@ -27,11 +26,18 @@ const formatDateTime = (isoString) => {
   const checkWifiConnection = ()=>{
     return new Promise((resolve , reject)=>{
     wifi.getCurrentConnections((error, currentConnections)=>{
-      if(error){
-        console.log('Error getting wifi connection : ' ,error)
+      if (error) {
+        console.log('Error getting wifi connection: ', error)
         reject(error)
-      }else{
-        const ainwikWifi = currentConnections.find(connection => connection.ssid === 'AinwikConnect')
+      } else {
+        console.log('Current Connections:', JSON.stringify(currentConnections, null, 2))
+        const ainwikWifi = currentConnections.find(connection => 
+          connection.ssid === 'connected' && (connection.bssid === 'AinwikConnect' || connection.mac === 'AinwikConnect')
+        )
+        console.log('AinwikConnect WiFi found:', ainwikWifi ? 'Yes' : 'No')
+        if (ainwikWifi) {
+          console.log('AinwikConnect details:', JSON.stringify(ainwikWifi, null, 2))
+        }
         resolve(!!ainwikWifi)
       }
     })
@@ -41,8 +47,19 @@ const formatDateTime = (isoString) => {
   app.get('/check-wifi', async (req,res)=>{
     try {
       const isConnected = await checkWifiConnection()
-      res.json({isConnected})
+      const allConnections = await new Promise((resolve, reject) => {
+        wifi.getCurrentConnections((error, connections) => {
+          if (error) reject(error)
+          else resolve(connections)
+        })
+      })
+      res.json({
+        isConnected,
+        allConnections,
+        message: isConnected ? 'Connected to AinwikConnect' : 'Not connected to AinwikConnect'
+      })
     } catch (error) {
+      console.error('Error checking WiFi connection:', error)
       res.status(500).json({ message: 'Failed to check WiFi connection', error: error.message })
     }
   })
