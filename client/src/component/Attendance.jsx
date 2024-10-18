@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import moment from 'moment-timezone';  
   
 const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api';  
-const isCloudEnvironment = false;  
+const isCloudEnvironment = true;  
   
 function Attendance() {  
   const [studentName, setStudentName] = useState('');  
