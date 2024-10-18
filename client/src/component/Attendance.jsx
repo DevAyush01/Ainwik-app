@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';  
 import moment from 'moment-timezone';  
   
-const API_BASE_URL = 'http://localhost:4455/api';  
+const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api';  
 const isCloudEnvironment = false;  
   
 function Attendance() {  
@@ -23,28 +23,22 @@ function Attendance() {
    return 'Invalid Time';  
   };  
   
-  const checkWifiConnection = async () => {  
-   if (isCloudEnvironment) {  
-    setIsConnectedToWifi(true);  
-    return;  
-   }  
-  
-   try {  
-    const response = await fetch(`${API_BASE_URL}/check-wifi`);  
-    const data = await response.json();  
-    console.log('WiFi connection status:', data);  
-    setIsConnectedToWifi(data.isConnected);  
-    if (!data.isConnected) {  
-      setMessage(`Not connected to AinwikConnect. Available networks: ${data.allConnections.map((conn) => conn.ssid).join(', ')}`);  
-    } else {  
-      setMessage('Connect to the Wifi for Punch in');  
-    }  
-   } catch (error) {  
-    console.error('Error checking WiFi connection:', error);  
-    setIsConnectedToWifi(false);  
-    setMessage('Failed to check WiFi connection');  
-   }  
-  };  
+  const checkWifiConnection = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/check-wifi`);
+        if (!response.ok) {
+            throw new Error('Failed to check WiFi connection');
+        }
+        const data = await response.json();
+        console.log('WiFi connection status:', data);
+        setIsConnectedToWifi(data.isConnected);
+        setMessage(data.message);
+    } catch (error) {
+        console.error('Error checking WiFi connection:', error);
+        setIsConnectedToWifi(false);
+        setMessage('Failed to check WiFi connection');
+    }
+};
   
   const handlePunchIn = async () => {  
    if (!studentName) {  

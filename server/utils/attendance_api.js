@@ -8,6 +8,8 @@ const app = express();
 app.use(express.json());
 connectDB();
 
+const isCloudEnvironment = process.env.IS_CLOUD_ENVIRONMENT === 'true';
+
 wifi.init({ iface: null });
 
 const formatDateTime = (isoString) => {
@@ -21,7 +23,13 @@ const calculateTimeDifference = (start, end) => {
     return `${hours.toString().padStart(2, '0')} hours ${minutes.toString().padStart(2, '0')} minutes`;
 };
 
+
 const checkWifiConnection = () => {
+  if (isCloudEnvironment) {
+    // Skip WiFi check in cloud environment
+    return Promise.resolve(true); // Assume connected for cloud environment
+}
+
   return new Promise((resolve, reject) => {
       wifi.getCurrentConnections((error, currentConnections) => {
           if (error) {
