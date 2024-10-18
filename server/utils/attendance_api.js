@@ -8,7 +8,6 @@ const app = express();
 app.use(express.json());
 connectDB();
 
-const isCloudEnvironment = process.env.IS_CLOUD_ENVIRONMENT === 'true';
 
 wifi.init({ iface: null });
 
@@ -25,10 +24,14 @@ const calculateTimeDifference = (start, end) => {
 
 
 const checkWifiConnection = () => {
+  // Check if running in a cloud environment
+  const isCloudEnvironment = process.env.IS_CLOUD_ENVIRONMENT === 'true';
+
   if (isCloudEnvironment) {
-    // Skip WiFi check in cloud environment
-    return Promise.resolve(true); // Assume connected for cloud environment
-}
+      // Skip WiFi check in cloud environment
+      console.log('Running in cloud environment, assuming connected to WiFi.');
+      return Promise.resolve(true); // Assume connected for cloud environment
+  }
 
   return new Promise((resolve, reject) => {
       wifi.getCurrentConnections((error, currentConnections) => {
@@ -38,12 +41,6 @@ const checkWifiConnection = () => {
           }
 
           console.log('Current WiFi Connections:', currentConnections);
-          currentConnections.forEach(connection => {
-              console.log('Detected SSID:', connection.ssid);
-              console.log('Detected BSSID:', connection.bssid);
-          });
-
-          // Check if connected to AinwikConnect using BSSID
           const isConnected = currentConnections.some(connection => 
               connection.bssid && connection.bssid.trim() === 'AinwikConnect'
           );
