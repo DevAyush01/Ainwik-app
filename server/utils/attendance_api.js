@@ -8,9 +8,9 @@ app.use(express.json());
 connectDB();
 
 // Configuration for allowed geolocation range
-const ALLOWED_LATITUDE = 28.5246; // Ainwik Infotech, Greater Noida latitude
-const ALLOWED_LONGITUDE = 77.3933; // Ainwik Infotech, Greater Noida longitude
-const ALLOWED_RADIUS = 0.5; // 0.5 km radius
+const ALLOWED_LATITUDE = 28.4731; // Ainwik Infotech, Greater Noida latitude
+const ALLOWED_LONGITUDE = 77.5150; // Ainwik Infotech, Greater Noida longitude
+const ALLOWED_RADIUS = 2; // 0.5 km radius
 
 const formatDateTime = (isoString) => {
     return moment(isoString).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
@@ -25,11 +25,11 @@ const calculateTimeDifference = (start, end) => {
 
 const isWithinAllowedRange = (latitude, longitude) =>{
     const R = 6371;
-    const dLat = (latitude - ALLOWED_LATITUDE) * Math.PI/180
-    const dLon = (longitude - ALLOWED_LONGITUDE) * Math.PI/180
+    const dLat = (latitude - ALLOWED_LATITUDE) * Math.PI / 180
+    const dLon = (longitude - ALLOWED_LONGITUDE) * Math.PI / 180
     const a =
     Math.sin(dLat/2) * Math.sin(dLat/2) + 
-    Math.cos(ALLOWED_LATITUDE * Math.PI / 180) * Math.cos(latitude * Math.PI / 180)
+    Math.cos(ALLOWED_LATITUDE * Math.PI / 180) * Math.cos(latitude * Math.PI / 180) *
     Math.sin(dLon/2) * Math.sin(dLon/2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
@@ -44,6 +44,8 @@ app.post('/punchin', async (req, res) => {
         return res.status(400).json({ message: "Student name and location are required" });
     }
 
+    console.log(`Received location: Latitude ${latitude}, Longitude ${longitude}`);
+
     if (!isWithinAllowedRange(latitude, longitude)) {
         return res.status(403).json({ message: "You are not within the allowed range to punch in" });
     }
@@ -51,6 +53,7 @@ app.post('/punchin', async (req, res) => {
     try {
     
         const punchInTime = new Date();
+        
         const attendance = new Attendance({ studentName, punchIn: punchInTime ,latitude, longitude });
 
         await attendance.save();
@@ -61,10 +64,14 @@ app.post('/punchin', async (req, res) => {
 });
 
 app.post('/punchout', async (req, res) => {
-    const { studentName } = req.body;
+    const { studentName, latitude, longitude } = req.body;
 
-    if (!studentName) {
-        return res.status(400).json({ message: "Student name is required." });
+    if (!studentName || latitude === undefined || longitude === undefined) {
+        return res.status(400).json({ message: "Student name and location are required" });
+    }
+
+    if (!isWithinAllowedRange(latitude, longitude)) {
+        return res.status(403).json({ message: "You are not within the allowed range to punch out" });
     }
 
     try {
@@ -80,6 +87,8 @@ app.post('/punchout', async (req, res) => {
         const totalTime = calculateTimeDifference(punchInDate, punchOutTime);
         attendance.punchOut = punchOutTime;
         attendance.totalTime = totalTime;
+        attendance.punchOutLatitude = latitude;
+        attendance.punchOutLongitude = longitude;
 
         await attendance.save();
         res.status(200).json({
@@ -99,7 +108,11 @@ app.get('/attendance', async (req, res) => {
             studentName: record.studentName,
             punchIn: formatDateTime(record.punchIn),
             punchOut: record.punchOut ? formatDateTime(record.punchOut) : 'N/A',
-            totalTime: record.totalTime || 'N/A'
+            totalTime: record.totalTime || 'N/A',
+            punchInLocation: record.latitude && record.longitude ? 
+                `${record.latitude.toFixed(4)}, ${record.longitude.toFixed(4)}` : 'N/A',
+            punchOutLocation: record.punchOutLatitude && record.punchOutLongitude ? 
+                `${record.punchOutLatitude.toFixed(4)}, ${record.punchOutLongitude.toFixed(4)}` : 'N/A'
         }));
 
         res.status(200).json(formattedAttendances);
@@ -108,5 +121,4 @@ app.get('/attendance', async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch attendance records', error: error.message });
     }
 });
-
 module.exports = app;

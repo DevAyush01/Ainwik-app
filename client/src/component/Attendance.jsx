@@ -2,24 +2,46 @@ import React, { useEffect, useState } from 'react';
 import moment from 'moment-timezone';  
   
 const API_BASE_URL = 'http://localhost:4455/api';  
+const ALLOWED_LOCATION = { latitude: 28.4731, longitude: 77.5150 };
   
 function Attendance() {  
   const [studentName, setStudentName] = useState('');  
   const [message, setMessage] = useState('');  
   const [attendanceRecords, setAttendanceRecords] = useState([]);  
+  const [location, setLocation] = useState(null);
   
   const formatDateTime = (timeString) => {  
-   console.log('Formatting time:', timeString);  
-   if (!timeString || typeof timeString !== 'string') return 'N/A'; // Handle empty or invalid inputs  
-  
-   const parsedTime = moment(timeString);  
-   if (parsedTime.isValid()) {  
-    return parsedTime.format('YYYY-MM-DD, hh:mm A');  
-   }  
-  
-   console.log('Unable to parse time:', timeString);  
-   return 'Invalid Time';  
+   // Check for valid input first
+   if (!timeString || typeof timeString !== 'string' || timeString === 'N/A') {
+    return 'N/A'; // Return early if the input is invalid
+}
+
+// Log the input to check format if needed
+// console.log('Received timeString:', timeString); 
+
+// Attempt to parse the date
+const parsedTime = moment(timeString, moment.ISO_8601);
+
+if (parsedTime.isValid()) {
+    return parsedTime.format('YYYY-MM-DD, hh:mm a');
+}
+
+// console.warn('Invalid date format:', timeString); // Log warning for invalid format
+return 'Invalid Time';
   };  
+
+  const getLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by your browser'));
+      } else {
+        navigator.geolocation.getCurrentPosition(
+          (position) => resolve(position.coords),
+          (error) => reject(error)
+        );
+      }
+    });
+  };
   
   const handlePunchIn = async () => {  
    if (!studentName) {  
@@ -28,12 +50,20 @@ function Attendance() {
    }  
   
    try {  
+    const coords = await getLocation();
+    console.log('Current coordinates:', coords);
+    setLocation(coords);
+
     const response = await fetch(`${API_BASE_URL}/punchin`, {  
       method: 'POST',  
       headers: {  
        'Content-Type': 'application/json',  
       },  
-      body: JSON.stringify({ studentName }),  
+      body: JSON.stringify({
+         studentName, 
+         latitude: coords.latitude, 
+         longitude: coords.longitude 
+        }),  
     });  
   
     if (!response.ok) {  
@@ -59,12 +89,20 @@ function Attendance() {
    }  
   
    try {  
+    const coords = await getLocation();
+      setLocation(coords);
+
+
     const response = await fetch(`${API_BASE_URL}/punchout`, {  
       method: 'POST',  
       headers: {  
        'Content-Type': 'application/json',  
       },  
-      body: JSON.stringify({ studentName }),  
+      body: JSON.stringify({
+        studentName, 
+          latitude: coords.latitude, 
+          longitude: coords.longitude 
+         }),  
     });  
   
     if (!response.ok) {  
@@ -155,6 +193,16 @@ function Attendance() {
        <p style={{ marginTop: '20px', color: '#333' }}>{message}</p>  
       )}  
     </div>  
+
+    {location && (
+        <p className="mb-4">
+          Current Location: Latitude {location.latitude.toFixed(4)}, Longitude {location.longitude.toFixed(4)}
+        </p>
+      )}
+
+      <p className="mb-4">
+        Allowed Location: Latitude {ALLOWED_LOCATION.latitude.toFixed(4)}, Longitude {ALLOWED_LOCATION.longitude.toFixed(4)}
+      </p>
 
 
 <div className="mt-8">

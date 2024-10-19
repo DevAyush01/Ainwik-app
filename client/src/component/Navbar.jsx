@@ -123,17 +123,17 @@ function Navbar() {
           </ul>
           </div>
 
-         <Link to="/Login">
+         <Link to="/AdminSignup">
          <li className="p-3 hover:bg-sky-400 hover:text-white rounded-md transtion-all cursor- 
           pointer">
             {" "}
-            Login
+            Admin Signup
           </li>
          </Link>
-          <Link to="/AinwikStudent">
+          <Link to="/AdminLogin">
           <li className="p-3 hover:bg-sky-400 hover:text-white  hover:border-b-2 rounded-md transtion-all cursor- 
            pointer">
-            Login for Ainwikstudent
+            Login for Admin
           </li>
           </Link>
         </ul>

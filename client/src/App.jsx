@@ -7,6 +7,8 @@ import AinwikLogin from './component/AinwikLogin';
 import Payment from './component/Payment';
 import Attendance from './component/Attendance';
 import AdminRegister from './component/AdminRegister';
+import AdminLogin from './component/AdminLogin';
+import Dashboard from './component/Dashboard';
 function App() {
   
   return (
@@ -15,12 +17,15 @@ function App() {
       <BrowserRouter>
       <Navbar/>
       <Routes>
-          <Route path="/Login" element={<Login/>}></Route>
-          <Route path="/AinwikStudent" element={<AinwikLogin/>}></Route>
+             <Route path="/Adminsignup" element={<AdminRegister />} />
+                <Route path="/Adminlogin" element={<AdminLogin/>} />
+                <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/Login" element={<Login/>}></Route>
+          <Route path="/AinwikStudent" element={<AinwikLogin/>}></Route> */}
           
       </Routes>
       </BrowserRouter>
-      <AdminRegister/>
+      {/* <AdminRegister/> */}
       <Attendance/>
       
     </div>
