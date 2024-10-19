@@ -2,14 +2,15 @@ const express = require('express');
 const connectDB = require('../config/dbConn');
 const Attendance = require('../config/Attendance');
 const moment = require('moment-timezone');
-const wifi = require('node-wifi');
 
 const app = express();
 app.use(express.json());
 connectDB();
 
-
-wifi.init({ iface: null });
+// Configuration for allowed geolocation range
+const ALLOWED_LATITUDE = 28.5246; // Ainwik Infotech, Greater Noida latitude
+const ALLOWED_LONGITUDE = 77.3933; // Ainwik Infotech, Greater Noida longitude
+const ALLOWED_RADIUS = 0.5; // 0.5 km radius
 
 const formatDateTime = (isoString) => {
     return moment(isoString).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
@@ -22,67 +23,35 @@ const calculateTimeDifference = (start, end) => {
     return `${hours.toString().padStart(2, '0')} hours ${minutes.toString().padStart(2, '0')} minutes`;
 };
 
+const isWithinAllowedRange = (latitude, longitude) =>{
+    const R = 6371;
+    const dLat = (latitude - ALLOWED_LATITUDE) * Math.PI/180
+    const dLon = (longitude - ALLOWED_LONGITUDE) * Math.PI/180
+    const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) + 
+    Math.cos(ALLOWED_LATITUDE * Math.PI / 180) * Math.cos(latitude * Math.PI / 180)
+    Math.sin(dLon/2) * Math.sin(dLon/2);
 
-const checkWifiConnection = () => {
-  // Check if running in a cloud environment
-  const isCloudEnvironment = process.env.IS_CLOUD_ENVIRONMENT === 'true';
-
-  if (isCloudEnvironment) {
-      // Skip WiFi check in cloud environment
-      console.log('Running in cloud environment, assuming connected to WiFi.');
-      return Promise.resolve(true); // Assume connected for cloud environment
-  }
-
-  return new Promise((resolve, reject) => {
-      wifi.getCurrentConnections((error, currentConnections) => {
-          if (error) {
-              console.error('Error getting WiFi connections:', error);
-              return reject(error);
-          }
-
-          console.log('Current WiFi Connections:', currentConnections);
-          const isConnected = currentConnections.some(connection => 
-              connection.bssid && connection.bssid.trim() === 'AinwikConnect'
-          );
-
-          console.log('Is connected to AinwikConnect:', isConnected);
-          resolve(isConnected);
-      });
-  });
-};
-
-app.get('/check-wifi', async (req, res) => {
-  try {
-      // Skip the WiFi check in cloud environment
-      const isConnected = true; // Assume connected for cloud environment
-      const allConnections = []; // No connections to report
-
-      res.json({
-          isConnected,
-          allConnections,
-          message: 'Assuming connected to AinwikConnect'
-      });
-  } catch (error) {
-      console.error('Error checking WiFi connection:', error);
-      res.status(500).json({ message: 'Failed to check WiFi connection', error: error.message });
-  }
-});
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c ;
+    return distance <= ALLOWED_RADIUS
+}
 
 app.post('/punchin', async (req, res) => {
-    const { studentName } = req.body;
+    const { studentName, latitude, longitude } = req.body;
 
-    if (!studentName) {
-        return res.status(400).json({ message: "Student name is required" });
+    if (!studentName || latitude === undefined || longitude === undefined) {
+        return res.status(400).json({ message: "Student name and location are required" });
+    }
+
+    if (!isWithinAllowedRange(latitude, longitude)) {
+        return res.status(403).json({ message: "You are not within the allowed range to punch in" });
     }
 
     try {
-        const isConnected = await checkWifiConnection();
-        if (!isConnected) {
-            return res.status(403).json({ message: "You must be connected to the AinwikConnect WiFi to punch in" });
-        }
-
+    
         const punchInTime = new Date();
-        const attendance = new Attendance({ studentName, punchIn: punchInTime });
+        const attendance = new Attendance({ studentName, punchIn: punchInTime ,latitude, longitude });
 
         await attendance.save();
         res.status(201).json({ ...attendance.toObject(), punchIn: formatDateTime(punchInTime) });
@@ -99,10 +68,6 @@ app.post('/punchout', async (req, res) => {
     }
 
     try {
-        const isConnected = await checkWifiConnection();
-        if (!isConnected) {
-            return res.status(403).json({ message: "You must be connected to the AinwikConnect WiFi to punch out" });
-        }
 
         const punchOutTime = new Date();
         const attendance = await Attendance.findOne({ studentName, punchOut: null });

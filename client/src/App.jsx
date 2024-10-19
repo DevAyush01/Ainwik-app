@@ -6,6 +6,7 @@ import Login from './component/Login';
 import AinwikLogin from './component/AinwikLogin';
 import Payment from './component/Payment';
 import Attendance from './component/Attendance';
+import AdminRegister from './component/AdminRegister';
 function App() {
   
   return (
@@ -19,6 +20,7 @@ function App() {
           
       </Routes>
       </BrowserRouter>
+      <AdminRegister/>
       <Attendance/>
       
     </div>

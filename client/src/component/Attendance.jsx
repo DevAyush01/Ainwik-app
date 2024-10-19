@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';  
 import moment from 'moment-timezone';  
   
-const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api';  
-const isCloudEnvironment = true;  
+const API_BASE_URL = 'http://localhost:4455/api';  
   
 function Attendance() {  
   const [studentName, setStudentName] = useState('');  
   const [message, setMessage] = useState('');  
   const [attendanceRecords, setAttendanceRecords] = useState([]);  
-  const [isConnectedToWifi, setIsConnectedToWifi] = useState(false);  
   
   const formatDateTime = (timeString) => {  
    console.log('Formatting time:', timeString);  
@@ -23,34 +21,9 @@ function Attendance() {
    return 'Invalid Time';  
   };  
   
-  const checkWifiConnection = async () => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/check-wifi`);
-        if (!response.ok) {
-            throw new Error('Failed to check WiFi connection');
-        }
-        const data = await response.json();
-        console.log('WiFi connection status:', data);
-        setIsConnectedToWifi(data.isConnected);
-        setMessage(data.message);
-    } catch (error) {
-        console.error('Error checking WiFi connection:', error);
-        setIsConnectedToWifi(false);
-        setMessage('Failed to check WiFi connection');
-    }
-};
-  
   const handlePunchIn = async () => {  
    if (!studentName) {  
     setMessage('Please enter a student name.');  
-    return;  
-   }  
-  
-   await checkWifiConnection();  
-  //  console.log('Attempting to punch in, connected:', isConnected);  
-  
-   if (!isConnectedToWifi && !isCloudEnvironment) {  
-    setMessage('You must be connected to the AinwikConnect WiFi to punch in.');  
     return;  
    }  
   
@@ -82,11 +55,6 @@ function Attendance() {
   const handlePunchOut = async () => {  
    if (!studentName) {  
     setMessage('Please enter a student name.');  
-    return;  
-   }  
-  
-   if (!isConnectedToWifi && !isCloudEnvironment) {  
-    setMessage('You must be connected to the AinwikConnect WiFi to punch out.');  
     return;  
    }  
   
@@ -138,9 +106,6 @@ function Attendance() {
   
   useEffect(() => {  
    fetchAttendanceRecords();  
-   checkWifiConnection();  
-   const intervalId = setInterval(checkWifiConnection, 10000);  
-   return () => clearInterval(intervalId);  
   }, []);  
   
   return (  
@@ -166,7 +131,6 @@ function Attendance() {
        width: '15%',  
       }}  
       onClick={handlePunchIn}  
-      disabled={!isConnectedToWifi && !isCloudEnvironment}  
     >  
       Punch In  
     </button>  
@@ -182,7 +146,6 @@ function Attendance() {
        width: '15%',  
       }}  
       onClick={handlePunchOut}  
-      disabled={!isConnectedToWifi && !isCloudEnvironment}  
     >  
       punch Out  
     </button>  
@@ -192,12 +155,6 @@ function Attendance() {
        <p style={{ marginTop: '20px', color: '#333' }}>{message}</p>  
       )}  
     </div>  
-  
-    {!isConnectedToWifi && !isCloudEnvironment && (  
-      <p className="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded">  
-       You are not connected to the AinwikConnect WiFi. Attendance registration is disabled.  
-      </p>  
-    )}  
 
 
 <div className="mt-8">
