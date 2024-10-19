@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';  
 import moment from 'moment-timezone';  
   
-const API_BASE_URL = 'http://localhost:4455/api';  
+const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api';  
 const ALLOWED_LOCATION = { latitude: 28.4731, longitude: 77.5150 };
   
 function Attendance() {  
