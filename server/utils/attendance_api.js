@@ -10,7 +10,7 @@ connectDB();
 // Configuration for allowed geolocation range
 const ALLOWED_LATITUDE = 28.4731; // Ainwik Infotech, Greater Noida latitude
 const ALLOWED_LONGITUDE = 77.5150; // Ainwik Infotech, Greater Noida longitude
-const ALLOWED_RADIUS = 2; // 0.5 km radius
+const ALLOWED_RADIUS = 4; // 0.5 km radius
 
 const formatDateTime = (isoString) => {
     return moment(isoString).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
