@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';  
 import moment from 'moment-timezone';  
   
-const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api';  
+// const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api';  
+const API_BASE_URL = 'http://localhost:4455/api';  
 const ALLOWED_LOCATION = { latitude: 28.4731, longitude: 77.5150 };
   
 function Attendance() {  
@@ -43,6 +44,20 @@ return 'Invalid Time';
     });
   };
   
+  // const defineStatus = (punchInTime)=>{
+  //   const punchIn = moment(punchInTime);
+  //   const startTime = moment(punchIn).set({hour : 13 ,minute : 20 , second : 0});
+  //   const lateTime = moment(punchIn).set({hour : 13 , minute : 25 , second : 0})
+
+  //   if(punchIn.isBefore(lateTime)){
+  //     return 'Present'
+  //   }else{
+  //     return 'Half Day'
+  //   }
+
+  // }
+
+
   const handlePunchIn = async () => {  
    if (!studentName) {  
     setMessage('Please enter a student name.');  
@@ -215,6 +230,7 @@ return 'Invalid Time';
                 <th className="border border-gray-300 p-2">Punch In Time</th>
                 <th className="border border-gray-300 p-2">Punch Out Time</th>
                 <th className="border border-gray-300 p-2">Total Time</th>
+                <th className="border border-gray-300 p-2">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -224,6 +240,8 @@ return 'Invalid Time';
                     <td className="border border-gray-300 p-2">{formatDateTime(record.punchIn)}</td>
                     <td className="border border-gray-300 p-2">{formatDateTime(record.punchOut)}</td>
                     <td className="border border-gray-300 p-2">{record.totalTime || 'N/A'}</td>
+                    <td className="border border-gray-300 p-2">{record.status || 'N/A'}</td> 
+                    
                   </tr>
                 ))}
             </tbody>

@@ -2,6 +2,7 @@ const express = require('express');
 const connectDB = require('../config/dbConn');
 const Attendance = require('../config/Attendance');
 const moment = require('moment-timezone');
+const { verifyToken } = require('../middleware/auth');
 
 const app = express();
 app.use(express.json());
@@ -53,8 +54,17 @@ app.post('/punchin', async (req, res) => {
     try {
     
         const punchInTime = new Date();
+        let status = 'Half Day'
+        const punchInMoment = moment(punchInTime)
+
+        const startTime = punchInMoment.clone().set({hour : 13 , minute : 50 , second: 0})
+        const endTime = punchInMoment.clone().set({hour : 14 , minute : 0 , second : 0})
+
+        if(punchInMoment.isBetween(startTime , endTime , null , [])){
+            status = 'Present'
+        }
         
-        const attendance = new Attendance({ studentName, punchIn: punchInTime ,latitude, longitude });
+        const attendance = new Attendance({ studentName, punchIn: punchInTime ,latitude, longitude , status});
 
         await attendance.save();
         res.status(201).json({ ...attendance.toObject(), punchIn: formatDateTime(punchInTime) });
@@ -105,10 +115,12 @@ app.get('/attendance', async (req, res) => {
     try {
         const attendances = await Attendance.find().sort({ punchIn: -1 });
         const formattedAttendances = attendances.map(record => ({
+            id: record._id,
             studentName: record.studentName,
             punchIn: formatDateTime(record.punchIn),
             punchOut: record.punchOut ? formatDateTime(record.punchOut) : 'N/A',
             totalTime: record.totalTime || 'N/A',
+            status: record.status || 'N/A',
             punchInLocation: record.latitude && record.longitude ? 
                 `${record.latitude.toFixed(4)}, ${record.longitude.toFixed(4)}` : 'N/A',
             punchOutLocation: record.punchOutLatitude && record.punchOutLongitude ? 
@@ -121,4 +133,43 @@ app.get('/attendance', async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch attendance records', error: error.message });
     }
 });
+
+app.put('/attendance/:id/status', verifyToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['Present', 'Absent', 'Half Day'].includes(status)) {
+            return res.status(400).json({ message: "Invalid status. Must be 'Present', 'Absent', or 'Half Day'" });
+        }
+
+        const updatedAttendance = await Attendance.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedAttendance) {
+            return res.status(404).json({ message: "Attendance record not found" });
+        }
+
+        res.json({
+            id: updatedAttendance._id,
+            studentName: updatedAttendance.studentName,
+            status: updatedAttendance.status,
+            punchIn: formatDateTime(updatedAttendance.punchIn),
+            punchOut: updatedAttendance.punchOut ? formatDateTime(updatedAttendance.punchOut) : 'N/A',
+            totalTime: updatedAttendance.totalTime || 'N/A',
+            punchInLocation: updatedAttendance.latitude && updatedAttendance.longitude ? 
+                `${updatedAttendance.latitude.toFixed(4)}, ${updatedAttendance.longitude.toFixed(4)}` : 'N/A',
+            punchOutLocation: updatedAttendance.punchOutLatitude && updatedAttendance.punchOutLongitude ? 
+                `${updatedAttendance.punchOutLatitude.toFixed(4)}, ${updatedAttendance.punchOutLongitude.toFixed(4)}` : 'N/A'
+        });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+
+
 module.exports = app;

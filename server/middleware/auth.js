@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
+  const token = req.headers['authorization']?.split(' ')[1]; // Extract just the token
   if (!token) {
     return res.status(403).send({ auth: false, message: 'No token provided.' });
   }
@@ -10,7 +10,7 @@ const verifyToken = (req, res, next) => {
     if (err) {
       return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     }
-    req.userId = decoded.id;
+    req.userId = decoded.id; // Save user ID for later use
     next();
   });
 };

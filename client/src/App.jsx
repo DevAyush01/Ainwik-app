@@ -9,6 +9,7 @@ import Attendance from './component/Attendance';
 import AdminRegister from './component/AdminRegister';
 import AdminLogin from './component/AdminLogin';
 import Dashboard from './component/Dashboard';
+import AdminPanel from './admin/AdminPanel';
 function App() {
   
   return (
@@ -27,6 +28,8 @@ function App() {
       </BrowserRouter>
       {/* <AdminRegister/> */}
       <Attendance/>
+      {/* <AdminPanel/> */}
+      
       
     </div>
   )

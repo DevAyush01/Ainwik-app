@@ -15,7 +15,9 @@ const AttendanceSchema = mongoose.Schema({
    
     punchOutLatitude: { type: Number },
    
-    punchOutLongitude: { type: Number }
+    punchOutLongitude: { type: Number },
+
+    status : { type : String, enum: ['Present', 'Absent', 'Half Day'], default: 'Absent'}
 
 }, {timestamps : true})
 
