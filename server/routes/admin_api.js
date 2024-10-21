@@ -45,7 +45,7 @@ app.post('/login_admin', async (req,res) =>{
 
         const admin = await Admin.findOne({username})
  
-        if(!Admin){
+        if(!admin){
             return res.status(404).send({message : "Admin not found!"})
         }
         
