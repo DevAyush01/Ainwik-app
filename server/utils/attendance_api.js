@@ -62,6 +62,8 @@ app.post('/punchin', async (req, res) => {
 
         if(punchInMoment.isBetween(startTime , endTime , null , [])){
             status = 'Present'
+        }else{
+            status= 'Half Day'
         }
         
         const attendance = new Attendance({ studentName, punchIn: punchInTime ,latitude, longitude , status});
