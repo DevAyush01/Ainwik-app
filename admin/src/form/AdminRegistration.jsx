@@ -18,7 +18,7 @@ const AdminRegistration = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:4455/api/auth/register_admin', {
+            const response = await fetch('https://ainwik-app-4.onrender.com/api/auth/register_admin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

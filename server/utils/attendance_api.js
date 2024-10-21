@@ -57,8 +57,8 @@ app.post('/punchin', async (req, res) => {
         let status = 'Half Day'
         const punchInMoment = moment(punchInTime)
 
-        const startTime = punchInMoment.clone().set({hour : 13 , minute : 50 , second: 0})
-        const endTime = punchInMoment.clone().set({hour : 14 , minute : 0 , second : 0})
+        const startTime = punchInMoment.clone().set({hour : 10 , minute : 0 , second: 0})
+        const endTime = punchInMoment.clone().set({hour : 10 , minute : 30 , second : 0})
 
         if(punchInMoment.isBetween(startTime , endTime , null , [])){
             status = 'Present'

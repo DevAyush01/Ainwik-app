@@ -12,7 +12,7 @@ const AdminLogin = () => {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:4455/api/auth/login_admin', {
+            const response = await fetch('https://ainwik-app-4.onrender.com/api/auth/login_admin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
