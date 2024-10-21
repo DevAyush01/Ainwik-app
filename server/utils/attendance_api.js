@@ -170,6 +170,32 @@ app.put('/attendance/:id/status', verifyToken, async (req, res) => {
     }
 });
 
+app.delete('/attendance/:id', verifyToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletedAttendance = await Attendance.findByIdAndDelete(id);
+
+        if (!deletedAttendance) {
+            return res.status(404).json({ message: "Attendance record not found" });
+        }
+
+        res.json({
+            message: `Successfully deleted attendance record`,
+            deletedRecord: {
+                id: deletedAttendance._id,
+                studentName: deletedAttendance.studentName,
+                punchIn: formatDateTime(deletedAttendance.punchIn),
+                punchOut: deletedAttendance.punchOut ? formatDateTime(deletedAttendance.punchOut) : 'N/A',
+                status: deletedAttendance.status
+            }
+        });
+    } catch (error) {
+        console.error('Error deleting attendance record:', error);
+        res.status(500).json({ message: 'Failed to delete attendance record', error: error.message });
+    }
+});
+
 
 
 module.exports = app;

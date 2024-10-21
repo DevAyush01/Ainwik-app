@@ -11,18 +11,20 @@ function App() {
     <div>
            <BrowserRouter>
            <Routes>
+          
             <Route path='/register' element={<AdminRegistration/>}></Route>
             <Route path='/login' element={<AdminLogin/>}></Route>
+            {/* <Route path='/' element={<AdminLogin/>}></Route> */}
 
             <Route path='/' element={<ProtectedRoute/>}>
-              <Route path='adminPanel' element={<AdminPanel/>}></Route>
-              
+              <Route path='/adminPanel' element={<AdminPanel/>}></Route>
                </Route>
-            
 
            </Routes>
            
            </BrowserRouter>
+         
+
 
     </div>
   )

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
 const API_BASE_URL = 'https://ainwik-app-4.onrender.com/api'
 // const API_BASE_URL = 'http://localhost:4455/api';  
@@ -63,10 +64,33 @@ export default function AdminPanel() {
         )
       )
 
-      alert(`Attendance status for ${updatedRecord.studentName} has been updated to ${updatedRecord.status}.`)
+      toast.success(`Attendance status for ${updatedRecord.studentName} has been updated to ${updatedRecord.status}.`)
     } catch (error) {
       console.error('Error updating attendance status:', error)
-      alert("Failed to update attendance status. Please try again.")
+      toast.error("Failed to update attendance status. Please try again.")
+    }
+  }
+
+  const deleteAttendanceRecord = async (id) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_BASE_URL}/attendance/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete attendance record');
+      }
+
+      const deletedRecord = await response.json();
+      setAttendanceRecords(prevRecords => prevRecords.filter(record => record.id !== id));
+      toast.success(`Attendance record for ${deletedRecord.deletedRecord.studentName} has been deleted.`);
+    } catch (error) {
+      console.error('Error deleting attendance record:', error);
+      toast.error("Failed to delete attendance record. Please try again.");
     }
   }
 
@@ -101,7 +125,7 @@ export default function AdminPanel() {
       <button onClick={handleLogout} className="mb-4 bg-red-500 text-white px-4 py-2 rounded">
         Logout
       </button>
-      <h1 className="text-2xl font-bold mb-4">Attendance Admin Panel</h1>
+      <h1 className="text-2xl font-bold mb-4 bg-yellow-100 text-center">Attendance Admin Panel</h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-gray-100">
@@ -112,6 +136,7 @@ export default function AdminPanel() {
               <th className="py-2 px-4 border-b text-left">Total Time</th>
               <th className="py-2 px-4 border-b text-left">Status</th>
               <th className="py-2 px-4 border-b text-left">Action</th>
+              <th className="py-2 px-4 border-b text-left">Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -133,11 +158,21 @@ export default function AdminPanel() {
                     <option value="Half Day">Half Day</option>
                   </select>
                 </td>
+                <td className="py-2 px-4 border-b">
+                  <button
+                    onClick={() => deleteAttendanceRecord(record.id)}
+                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                  </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <Toaster />
       </div>
+      
     </div>
   )
 }
