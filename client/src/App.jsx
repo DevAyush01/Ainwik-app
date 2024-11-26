@@ -20,17 +20,17 @@ function App() {
       <BrowserRouter>
       <Navbar/>
       <Routes>
-             {/* <Route path="/Adminsignup" element={<AdminRegister />} />
+             <Route path="/Adminsignup" element={<AdminRegister />} />
                 <Route path="/Adminlogin" element={<AdminLogin/>} />
-                <Route path="/dashboard" element={<Dashboard />} /> */}
+                <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/Login" element={<Login/>}></Route>
           <Route path="/AinwikStudent" element={<AinwikLogin/>}></Route>
           {/* <Route path="/" element={<NewCourse />} />
           <Route path="/update-course/:courseId" element={<UpdatedCourse />} /> */}
-          
-      </Routes>
-      
+           </Routes>
       </BrowserRouter>
+
+      <Attendance/>
     </div>
   )
 }
