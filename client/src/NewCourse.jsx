@@ -1,112 +1,71 @@
-import React, { useEffect, useState } from 'react'
-import Marquee from "react-fast-marquee";
+import React, { useState, useEffect, } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function NewCourse() {
-  const [courses,setCourses] = useState([])
-  const[image,setImage] = useState(null)
-  const [courseHeading,setCourseHeading] = useState('')
-  const [courseDescription , setCourseDescription] = useState('')
+export default function NewCourse() {
+  const [courses, setCourses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const fetchCourses = async () => {
-    try {
-      const response = await fetch('https://ainwik-app-4.onrender.com/api/courses');
-      if (!response.ok) {
-        throw new Error('Failed to fetch courses');
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('https://ainwik-app-4.onrender.com/api/courses');
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+        const data = await response.json();
+        console.log('Fetched courses:', data);
+        setCourses(data);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+        setError('Error fetching courses');
+      } finally {
+        setIsLoading(false);
       }
-      const data = await response.json();
-      setCourses(data);
-    } catch (err) {
-      console.error('Error fetching courses:', err);
-    }
-  };
+    };
 
-  useEffect(()=>{
-    fetchCourses()
-  },[])
+    fetchCourses();
+  }, []);
 
-  const handleSubmit = async(e)=>{
-     e.preventDefault()
+  const handleUpdateClick = (courseId)=>{
+      navigate(`/update-course/${courseId}`)
+  }
 
-     const formData = new FormData();
-     formData.append('courseHeading', courseHeading);
-     formData.append('courseDescription', courseDescription);
-     formData.append('image', image);
 
-     try {
-      const response = await fetch('https://ainwik-app-4.onrender.com/api/add_course', {
-        method: 'POST',
-        body: formData,
-      });
+  if (isLoading) {
+    return <div className="text-center text-xl">Loading courses...</div>;
+  }
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+  if (error) {
+    return <div className="text-center text-red-600">{error}</div>;
+  }
 
-      const data = await response.json();
-      console.log(data);
-
-    } catch (error) {
-      console.error('Error uploading course:', error);
-    }
-  };
   return (
-    <div className='w-full h-[100vh] border-l-rose-400 flex justify-center items-center'>
-        
-    {/* <form action="" onSubmit={handleSubmit}>
-      <input type="file" name="image" id=""  onChange={(e)=>setImage(e.target.files[0])}/>
-      <br />
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-semibold text-center mb-8">Courses</h1>
 
-      <input type="text" name="courseHeading" id="" value={courseHeading} onChange={(e)=>setCourseHeading(e.target.value)} />
-      <input type="text" name="courseDescription" id=""  value={courseDescription} onChange={(e)=>setCourseDescription(e.target.value)} />
-        
-        <button type='submit' className='bg-slate-500'>Submit </button>
-    </form> */}
-      
-
-      {/* <div className='course-list'>
-        {courses.length > 0 ? (
-          courses.map((course) => (
-            <div key={course._id} className="course-card border p-4 rounded shadow-md mb-4">
-              <h2 className='text-xl font-bold'>{course.heading}</h2>
-              <p>{course.description}</p>
-              {course.image && <img src={course.image} alt={course.heading} className="mt-2" />}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      {courses.map(course => (
+          <div key={course._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <img src={course.image} alt={course.heading} className="w-full h-48 object-cover" />
+            <div className="p-4">
+              <h2 className="text-xl font-semibold mb-2">{course.heading}</h2>
+              <p className="text-gray-600 mb-4">{course.description}</p>
+              <button
+                onClick={() => handleUpdateClick(course._id)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+              >
+                Update
+              </button>
             </div>
-          ))
-        ) : (
-          <p>No courses available.</p>
-        )}
-      </div> */}
-{/* 
-      <Marquee>
-      <div style={{ padding: '0 20px' }}>Item 1</div>
-      <div style={{ padding: '0 20px' }}>Item 2</div>
-      <div style={{ padding: '0 20px' }}>Item 3</div>
-      <div style={{ padding: '0 20px' }}>Item 4</div>
-      <div style={{ padding: '0 20px' }}>Item 5</div>
-    </Marquee> */}
-    
-    <div style={{
-           background: 'whitesmoke',
-      padding: '20px 60px',
-      overflow: 'hidden',
-    }}>
-      <Marquee
-        speed={50}
-        // pauseOnHover={true}
-        direction="left"
-        style={{ color: '#000', fontSize: '2.0em', fontWeight : 'bolder' }} // Text color and size
-      >
-        {courses.map((course) => (
-          <div key={course._id} style={{ padding: '0 20px' }}>
-            {course.heading}
           </div>
         ))}
-      </Marquee>
-    </div>
+      </div>
+
       
-
-</div>
-  )
+    </div>
+  );
 }
-
-export default NewCourse

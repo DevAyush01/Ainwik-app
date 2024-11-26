@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const Slider = require('../config/Slider');
-const upload = require('../multerConfig');
+const {upload} = require('../multerConfig');
 
 
 app.post('/add_image',upload.single('image'), async(req,res)=>{
